@@ -41,3 +41,104 @@ keymap("n", "dd", function()
   end
   return "dd"
 end, { expr = true })
+
+-- Themery theme switcher
+keymap("n", "<leader>th", ":Themery<CR>", { desc = "Open theme switcher" })
+
+-- Quick escape from special buffers (dashboard, claude code, etc)
+-- Using <leader>q to quit special buffers instead of Esc to avoid conflicts
+keymap("n", "<leader>q", function()
+  local buftype = vim.bo.buftype
+  local filetype = vim.bo.filetype
+  local bufname = vim.fn.bufname()
+  -- Check if we're in a special buffer or Claude Code buffer
+  if buftype ~= "" or filetype == "alpha" or filetype == "dashboard" or filetype == "lazy" or string.match(bufname, "claude") then
+    -- Get list of normal buffers
+    local buffers = vim.fn.getbufinfo({ buflisted = 1 })
+    local current = vim.fn.bufnr()
+    
+    -- Try to find a normal buffer to switch to
+    for _, buf in ipairs(buffers) do
+      if buf.bufnr ~= current and buf.name ~= "" and not string.match(buf.name, "claude") then
+        vim.cmd("buffer " .. buf.bufnr)
+        return
+      end
+    end
+    
+    -- If no other buffers, create a new one
+    vim.cmd("enew")
+  else
+    -- If in normal buffer, just quit
+    vim.cmd("q")
+  end
+end, { desc = "Quit buffer or escape from special buffers" })
+
+-- Alternative escape with double Esc (won't conflict with Claude Code's single Esc)
+keymap("n", "<Esc><Esc>", function()
+  local bufname = vim.fn.bufname()
+  if string.match(bufname, "claude") or vim.bo.buftype ~= "" then
+    -- Get list of normal buffers
+    local buffers = vim.fn.getbufinfo({ buflisted = 1 })
+    local current = vim.fn.bufnr()
+    
+    -- Try to find a normal buffer to switch to
+    for _, buf in ipairs(buffers) do
+      if buf.bufnr ~= current and buf.name ~= "" and not string.match(buf.name, "claude") then
+        vim.cmd("buffer " .. buf.bufnr)
+        return
+      end
+    end
+    
+    -- If no other buffers, create a new one
+    vim.cmd("enew")
+  end
+end, { desc = "Double Esc to escape special buffers" })
+
+-- Quick buffer switching (with fallback)
+keymap("n", "<leader><Tab>", function()
+  local ok = pcall(vim.cmd, "b#")
+  if not ok then
+    -- Show buffer list if no alternate buffer
+    vim.cmd("Telescope buffers")
+  end
+end, { desc = "Switch to previous buffer" })
+
+keymap("n", "<leader>bb", function()
+  local ok = pcall(vim.cmd, "b#")
+  if not ok then
+    -- Show buffer list if no alternate buffer
+    vim.cmd("Telescope buffers")
+  end
+end, { desc = "Switch to previous buffer" })
+
+-- Map leader-backtick to escape Claude buffer or switch buffers
+keymap("n", "<leader>`", function()
+  local bufname = vim.fn.bufname()
+  
+  -- If in Claude buffer, try to find another buffer
+  if string.match(bufname, "claude") or string.match(bufname, "Claude") then
+    local buffers = vim.fn.getbufinfo({ buflisted = 1 })
+    local current = vim.fn.bufnr()
+    
+    -- Find first non-Claude buffer
+    for _, buf in ipairs(buffers) do
+      if buf.bufnr ~= current and not string.match(buf.name or "", "[Cc]laude") then
+        vim.cmd("buffer " .. buf.bufnr)
+        return
+      end
+    end
+    
+    -- No other buffers, create new
+    vim.cmd("enew")
+  else
+    -- Not in Claude buffer, try to switch to alternate
+    local ok = pcall(vim.cmd, "b#")
+    if not ok then
+      vim.cmd("Telescope buffers")
+    end
+  end
+end, { desc = "Smart buffer switch (escape Claude)" })
+keymap("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
+keymap("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
+keymap("n", "<C-j>", "<C-w>j", { desc = "Go to window below" })
+keymap("n", "<C-k>", "<C-w>k", { desc = "Go to window above" })

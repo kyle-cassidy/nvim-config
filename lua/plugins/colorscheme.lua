@@ -1,6 +1,19 @@
 return {
   -- add gruvbox
   { "ellisonleao/gruvbox.nvim" },
+  -- add One Dark Pro
+  {
+    "olimorris/onedarkpro.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      -- Options: onedark, onelight, onedark_vivid, onedark_dark
+      highlights = {},
+      options = {
+        transparency = false,
+      },
+    },
+  },
   {
     "catppuccin/nvim",
     lazy = true,
@@ -32,7 +45,7 @@ return {
         },
         navic = { enabled = true, custom_bg = "lualine" },
         neotest = true,
-        neotree = true,
+        neotree = false,
         noice = true,
         notify = true,
         semantic_tokens = true,
@@ -44,11 +57,11 @@ return {
     },
   },
 
-  -- Configure LazyVim to load gruvbox
+  -- Configure LazyVim to load One Dark Pro
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "catppuccin",
+      colorscheme = "onedark",
     },
   },
 }
