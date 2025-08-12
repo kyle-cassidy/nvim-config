@@ -1,0 +1,1121 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+lua/
+  config/
+    autocmds.lua
+    keymaps_vscode.lua
+    keymaps.lua
+    lazy.lua
+    options.lua
+  plugins/
+    lsp/
+      handlers.lua
+      init.lua
+    catppuccin.lua
+    cmp.lua
+    colorscheme.lua
+    copilot.lua
+    hawtkeys.lua
+    mason.lua
+    neo-tree.lua
+    obsidian.lua
+    telescope.lua
+    treesitter.lua
+    venv-selector.lua
+  .gitignore
+.neoconf.json
+init.lua
+lazy-lock.json
+lazyvim.json
+LICENSE
+README.md
+stylua.toml
+
+================================================================
+Files
+================================================================
+
+================
+File: lua/config/autocmds.lua
+================
+-- Autocmds are automatically loaded on the VeryLazy event
+-- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+-- Add any additional autocmds here
+
+================
+File: lua/config/keymaps_vscode.lua
+================
+local M = {}
+
+M.opts = {
+  mappings = {
+    -- { mode = 'i', lhs = 'jk', rhs = '<Esc>', opts = { noremap = true, silent = true } },
+    -- Add more mappings as needed
+  }
+}
+
+function M.setup(opts)
+  opts = vim.tbl_deep_extend("force", M.opts, opts or {})
+  
+  for _, mapping in ipairs(opts.mappings) do
+    vim.keymap.set(mapping.mode, mapping.lhs, mapping.rhs, mapping.opts)
+  end
+
+  -- VSCode-specific way to set the 'jk' mapping
+  vim.api.nvim_command([[
+    if exists('g:vscode')
+      inoremap jk <Esc>
+    endif
+  ]])
+end
+
+return M
+
+================
+File: lua/config/keymaps.lua
+================
+-- Keymaps are automatically loaded on the VeryLazy event
+-- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
+-- Add any additional keymaps here
+
+local keymap = vim.keymap.set
+
+vim.g.mapleader = " "
+
+vim.api.nvim_set_keymap("n", "<leader>;;", "/", { noremap = true })
+vim.api.nvim_set_keymap("i", "jk", "<Esc>", { noremap = true })
+
+-- vim.opt.number = true
+-- vim.opt.relativenumber = true
+vim.opt.clipboard = "unnamedplus"
+
+vim.cmd("set expandtab")
+vim.cmd("set tabstop=2")
+vim.cmd("set softtabstop=2")
+vim.cmd("set shiftwidth=2")
+
+-- better motion
+vim.keymap.set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+vim.keymap.set({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+vim.keymap.set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+
+vim.api.nvim_set_keymap("v", "H", "^", { noremap = true }) --(default H moves the cursor to the top of the screen)
+vim.api.nvim_set_keymap("v", "J", "}", { noremap = true }) --(default J moves down one line)
+vim.api.nvim_set_keymap("v", "K", "{", { noremap = true }) --(default K moves up one line)
+vim.api.nvim_set_keymap("v", "L", "$", { noremap = true }) --(no defualt that i know of)
+
+vim.api.nvim_set_keymap("n", "H", "^", { noremap = true })
+vim.api.nvim_set_keymap("n", "J", "}", { noremap = true })
+vim.api.nvim_set_keymap("n", "K", "{", { noremap = true })
+vim.api.nvim_set_keymap("n", "L", "$", { noremap = true })
+
+-- smart dd: only yank the line if it's not empty
+keymap("n", "dd", function()
+  if vim.fn.getline(".") == "" then
+    return '"_dd'
+  end
+  return "dd"
+end, { expr = true })
+
+================
+File: lua/config/lazy.lua
+================
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  -- bootstrap lazy.nvim
+  -- stylua: ignore
+  vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
+end
+vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
+
+require("lazy").setup({
+  spec = {
+    -- add LazyVim and import its plugins
+    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    -- import any extras modules here
+    -- { import = "lazyvim.plugins.extras.lang.typescript" },
+    -- { import = "lazyvim.plugins.extras.lang.json" },
+    -- { import = "lazyvim.plugins.extras.ui.mini-animate" },
+    -- import/override with your plugins
+    { import = "plugins" },
+  },
+  defaults = {
+    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
+    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
+    lazy = false,
+    -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
+    -- have outdated releases, which may break your Neovim install.
+    version = false, -- always use the latest git commit
+    -- version = "*", -- try installing the latest stable version for plugins that support semver
+  },
+  checker = { enabled = true }, -- automatically check for plugin updates
+})
+
+================
+File: lua/config/options.lua
+================
+-- Options are automatically loaded before lazy.nvim startup
+-- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+-- Add any additional options here
+
+local opt = vim.opt
+
+opt.winbar = "%=%m %f" -- Add file path on the twinbar top right
+
+-- opt.statuscolumn = "%l %r" -- Show both line and relative numbers
+opt.statuscolumn = "%r" -- Show relative numbers
+opt.conceallevel = 2
+
+vim.g.move_key_modifier_visualmode = "S" -- Use Shift + S to move lines in visual mode
+
+================
+File: lua/plugins/lsp/handlers.lua
+================
+local M = {}
+local keymap = vim.keymap.set
+
+local cmp_nvim_lsp = require("cmp_nvim_lsp")
+
+M.capabilities = cmp_nvim_lsp.default_capabilities()
+
+M.setup = function()
+  local signs = { Error = "", Warn = "", Hint = "", Info = "" }
+  for type, icon in pairs(signs) do
+    local hl = "DiagnosticSign" .. type
+    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+  end
+
+  local config = {
+    -- Enable virtual text
+    virtual_text = true,
+    -- show signs
+    signs = {
+      active = signs,
+    },
+    update_in_insert = true,
+    underline = true,
+    severity_sort = true,
+    float = {
+      focusable = false,
+      style = "minimal",
+      border = "rounded",
+      source = "always",
+      header = "",
+      prefix = "",
+    },
+  }
+
+  vim.diagnostic.config(config)
+
+  vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+    border = "rounded",
+  })
+
+  vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+    border = "rounded",
+  })
+end
+
+local function lsp_keymaps(bufnr)
+  local buf_opts = { buffer = bufnr, silent = true }
+  -- keymap("n", "gD", vim.lsp.buf.declaration, buf_opts)
+  keymap("n", "gD", ":Lspsaga lsp_finder<CR>", buf_opts)
+  keymap("n", "gd", ":Lspsaga goto_definition<CR>", buf_opts)
+  -- keymap("n", "gd", vim.lsp.buf.definition, buf_opts)
+  keymap("n", "gl", ":Lspsaga show_line_diagnostics<CR>", buf_opts)
+  keymap("n", "gc", ":Lspsaga show_cursor_diagnostics<CR>", buf_opts)
+  keymap("n", "gp", ":Lspsaga peek_definition<CR>", buf_opts)
+  -- keymap("n", "K", vim.lsp.buf.hover, buf_opts)
+  keymap("n", "K", ":Lspsaga hover_doc<CR>", buf_opts)
+  keymap("n", "gi", vim.lsp.buf.implementation, buf_opts)
+end
+
+-- Highlight symbol under cursor
+local function lsp_highlight(client, bufnr)
+  if client.supports_method("textDocument/documentHighlight") then
+    vim.api.nvim_create_augroup("lsp_document_highlight", {
+      clear = false,
+    })
+    vim.api.nvim_clear_autocmds({
+      buffer = bufnr,
+      group = "lsp_document_highlight",
+    })
+    vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+      group = "lsp_document_highlight",
+      buffer = bufnr,
+      callback = vim.lsp.buf.document_highlight,
+    })
+    vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+      group = "lsp_document_highlight",
+      buffer = bufnr,
+      callback = vim.lsp.buf.clear_references,
+    })
+  end
+end
+
+local function disable_format_on_save()
+  vim.api.nvim_del_augroup_by_name("Format on save")
+  vim.notify("Format on save is now disabled", vim.log.levels.INFO, { title = "Format" })
+end
+
+local function enable_format_on_save()
+  vim.api.nvim_create_augroup("Format on save", { clear = false })
+  vim.api.nvim_create_autocmd("BufWritePost", {
+    callback = function()
+      vim.lsp.buf.format({
+        async = true,
+        filter = function(client)
+          return client.name == "null-ls"
+        end,
+      })
+      vim.notify("Format Done", vim.log.levels.INFO, { title = "Format" })
+    end,
+    group = "Format on save",
+  })
+  vim.notify("Format on save is now enabled", vim.log.levels.INFO, { title = "Format" })
+end
+
+M.on_attach = function(client, bufnr)
+  lsp_keymaps(bufnr)
+  lsp_highlight(client, bufnr)
+  vim.api.nvim_create_user_command("FormatOnSaveToggle", function()
+    if vim.fn.exists("#Format on save#BufWritePost") == 0 then
+      enable_format_on_save()
+    else
+      disable_format_on_save()
+    end
+  end, { nargs = "*" })
+end
+
+return M
+
+================
+File: lua/plugins/lsp/init.lua
+================
+return {
+  {
+    "glepnir/lspsaga.nvim",
+    event = "LspAttach",
+    dependencies = {
+      { "nvim-tree/nvim-web-devicons" },
+      { "nvim-treesitter/nvim-treesitter" },
+    },
+    opts = {
+      -- Your Lspsaga configuration here
+    },
+  },
+  -- Add other LSP-related plugins here if needed
+}
+
+================
+File: lua/plugins/catppuccin.lua
+================
+return {
+  "catppuccin/nvim",
+  enabled = true,
+  lazy = false,
+  name = "catppuccin",
+  priority = 1000,
+  config = function()
+    vim.cmd.colorscheme "catppuccin"
+  end
+}
+
+================
+File: lua/plugins/cmp.lua
+================
+return {
+  "hrsh7th/nvim-cmp",
+  dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-buffer",
+    "hrsh7th/cmp-path",
+    "hrsh7th/cmp-cmdline",
+  },
+  config = function()
+    local cmp = require("cmp")
+    cmp.setup({
+      mapping = cmp.mapping.preset.insert({
+        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-e>'] = cmp.mapping.abort(),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }),
+      }),
+      sources = cmp.config.sources({
+        { name = 'nvim_lsp' },
+        { name = 'buffer' },
+        { name = 'path' },
+      }),
+    })
+  end,
+}
+
+================
+File: lua/plugins/colorscheme.lua
+================
+return {
+  -- add gruvbox
+  { "ellisonleao/gruvbox.nvim" },
+  {
+    "catppuccin/nvim",
+    lazy = true,
+    name = "catppuccin",
+    opts = {
+      integrations = {
+        aerial = true,
+        alpha = true,
+        cmp = true,
+        dashboard = true,
+        flash = true,
+        gitsigns = true,
+        headlines = true,
+        illuminate = true,
+        indent_blankline = { enabled = true },
+        leap = true,
+        lsp_trouble = true,
+        mason = true,
+        markdown = true,
+        mini = true,
+        native_lsp = {
+          enabled = true,
+          underlines = {
+            errors = { "undercurl" },
+            hints = { "undercurl" },
+            warnings = { "undercurl" },
+            information = { "undercurl" },
+          },
+        },
+        navic = { enabled = true, custom_bg = "lualine" },
+        neotest = true,
+        neotree = true,
+        noice = true,
+        notify = true,
+        semantic_tokens = true,
+        telescope = true,
+        treesitter = true,
+        treesitter_context = true,
+        which_key = true,
+      },
+    },
+  },
+
+  -- Configure LazyVim to load gruvbox
+  {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "catppuccin",
+    },
+  },
+}
+
+================
+File: lua/plugins/copilot.lua
+================
+return {
+  {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+      require("copilot").setup({
+        panel = {
+          enabled = false, --
+          auto_refresh = true, -- Enable/Disable auto refresh
+          keymap = {
+            jump_prev = "[[",
+            jump_next = "]]",
+            accept = "<CR>",
+            refresh = "gr",
+            open = "<M-CR>",
+          },
+          layout = {
+            position = false, -- | top | left | right
+            ratio = 0.4,
+          },
+        },
+        suggestion = {
+          enabled = true,
+          auto_trigger = false,
+          debounce = 75,
+          keymap = {
+            accept = "<M-l>",
+            accept_word = false,
+            accept_line = false,
+            next = "<M-]>",
+            prev = "<M-[>",
+            dismiss = "<C-]>",
+          },
+        },
+        filetypes = {
+          yaml = false,
+          markdown = false,
+          help = false,
+          gitcommit = false,
+          gitrebase = false,
+          hgcommit = false,
+          svn = false,
+          cvs = false,
+          ["."] = false,
+        },
+        copilot_node_command = "node", -- Node.js version must be > 18.x
+        server_opts_overrides = {},
+      })
+    end,
+  },
+}
+
+================
+File: lua/plugins/hawtkeys.lua
+================
+return {
+  "tris203/hawtkeys.nvim",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "nvim-treesitter/nvim-treesitter",
+  },
+  opts= {
+    -- an empty table will work for default config
+    --- if you use functions, or whichkey, or lazy to map keys
+    --- then please see the API below for options
+  },
+}
+
+================
+File: lua/plugins/mason.lua
+================
+return {
+  "neovim/nvim-lspconfig",
+  event = { "BufReadPost", "BufNewFile" },
+  cmd = { "LspInfo", "LspInstall", "LspUninstall" },
+  dependencies = {
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+    "hrsh7th/cmp-nvim-lsp",
+    {
+      "hrsh7th/nvim-cmp",
+      dependencies = {
+        "hrsh7th/cmp-buffer",
+        "hrsh7th/cmp-path",
+        "hrsh7th/cmp-cmdline",
+      },
+    },
+  },
+  opts = {
+    auto_install = {
+      "lua_ls", "clangd", "pyright", "cssls", "html",
+      "emmet_ls", "jdtls", "yamlls", "vimls",
+    },
+    python3_host_prog = '~/.venv_nvim/bin/python3',
+    mason_ui = {
+      check_outdated_packages_on_open = false,
+      border = "single",
+      icons = {
+        package_pending = " ",
+        package_installed = " ",
+        package_uninstalled = " ",
+      },
+    },
+  },
+  config = function(_, opts)
+    vim.g.python3_host_prog = opts.python3_host_prog
+    require("plugins.lsp.handlers").setup()
+
+    local mason = require("mason")
+    local mason_lspconfig = require("mason-lspconfig")
+    local lspconfig = require("lspconfig")
+
+    require("lspconfig.ui.windows").default_options.border = "rounded"
+
+    mason.setup({ ui = opts.mason_ui })
+    mason_lspconfig.setup({ ensure_installed = opts.auto_install })
+
+    mason_lspconfig.setup_handlers({
+      function(server_name)
+        local server_opts = {
+          on_attach = require("plugins.lsp.handlers").on_attach,
+          capabilities = require("plugins.lsp.handlers").capabilities,
+        }
+
+        if server_name == "debugpy" then
+          server_opts.cmd = { opts.python3_host_prog, "-m", "debugpy.adapter" }
+        else
+          local require_ok, server_config = pcall(require, "plugins.lsp.settings." .. server_name)
+          if require_ok then
+            server_opts = vim.tbl_deep_extend("force", server_config, server_opts)
+          end
+        end
+
+        lspconfig[server_name].setup(server_opts)
+      end,
+    })
+  end,
+}
+
+================
+File: lua/plugins/neo-tree.lua
+================
+return {
+  "nvim-neo-tree/neo-tree.nvim",
+  branch = "v3.x",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "nvim-tree/nvim-web-devicons",
+    "MunifTanjim/nui.nvim",
+  },
+  filesystem = {
+    components = {
+      harpoon_index = function(config, node, _)
+        local harpoon_list = require("harpoon"):list()
+        local path = node:get_id()
+        local harpoon_key = vim.uv.cwd()
+
+        for i, item in ipairs(harpoon_list.items) do
+          local value = item.value
+          if string.sub(item.value, 1, 1) ~= "/" then
+            value = harpoon_key .. "/" .. item.value
+          end
+
+          if value == path then
+            vim.print(path)
+            return {
+              text = string.format(" ⥤ %d", i), -- <-- Add your favorite harpoon like arrow here
+              highlight = config.highlight or "NeoTreeDirectoryIcon",
+            }
+          end
+        end
+        return {}
+      end,
+    },
+    renderers = {
+      file = {
+        { "icon" },
+        { "name", use_git_status_colors = true },
+        { "harpoon_index" }, --> This is what actually adds the component in where you want it
+        { "diagnostics" },
+        { "git_status", highlight = "NeoTreeDimText" },
+      },
+    },
+  },
+}
+
+================
+File: lua/plugins/obsidian.lua
+================
+return {
+  "epwalsh/obsidian.nvim",
+  version = "*", -- recommended, use latest release instead of latest commit
+  lazy = true,
+  ft = "markdown",
+  -- only load obsidian.nvim for markdown files in the vault
+  event = {
+    -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+    -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+    "BufReadPre "
+      .. vim.fn.expand("~")
+      .. "/notes/**.md",
+    "BufNewFile " .. vim.fn.expand("~") .. "/notes/**.md",
+  },
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+  },
+  opts = {
+    workspaces = {
+      {
+        name = "Vault",
+        path = "~/Vault",
+      },
+    },
+  },
+}
+
+================
+File: lua/plugins/telescope.lua
+================
+return {
+  {
+    "nvim-telescope/telescope-ui-select.nvim",
+    "nvim-telescope/telescope-file-browser.nvim",
+  },
+  {
+    "nvim-telescope/telescope.nvim",
+    tag = "0.1.5",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("telescope").setup({
+        extensions = {
+          ["ui-select"] = {
+            require("telescope.themes").get_dropdown({}),
+          },
+        },
+      })
+      local builtin = require("telescope.builtin")
+      vim.keymap.set("n", "<C-p>", builtin.find_files, {})
+      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+      -- open file_browser with the path of the current buffer
+      vim.api.nvim_set_keymap(
+        "n",
+        "<space>fd",
+        ":Telescope file_browser path=%:p:h select_buffer=true<CR>",
+        { noremap = true }
+      )
+
+      require("telescope").load_extension("ui-select")
+    end,
+  },
+}
+
+================
+File: lua/plugins/treesitter.lua
+================
+return {
+  "nvim-treesitter/nvim-treesitter",
+  build = ":TSUpdate",
+  config = function()
+    local config = require("nvim-treesitter.configs")
+    config.setup({
+      ensure_installed = {
+        "python", "sql","lua", "javascript", "html"
+      },
+      sync_install = true,
+      highlight = { enable = true },
+      indent = { enable = true }
+    })
+  end
+}
+
+================
+File: lua/plugins/venv-selector.lua
+================
+return {
+  "linux-cultist/venv-selector.nvim",
+  dependencies = { "neovim/nvim-lspconfig", "nvim-telescope/telescope.nvim", "mfussenegger/nvim-dap-python" },
+  event = "VeryLazy", -- Optional: needed only if you want to type `:VenvSelect` without a keymapping
+  keys = {
+    { "<leader>vs", "<cmd>VenvSelect<cr>", desc = "Select Python venv" },
+    { "<leader>vc", "<cmd>VenvSelectCached<cr>", desc = "Retrieve Python venv from cache" },
+  },
+}
+
+================
+File: lua/.gitignore
+================
+tt.*
+.tests
+doc/tags
+debug
+.repro
+foo.*
+*.log
+data
+
+================
+File: .neoconf.json
+================
+{
+  "neodev": {
+    "library": {
+      "enabled": true,
+      "plugins": true
+    }
+  },
+  "neoconf": {
+    "plugins": {
+      "lua_ls": {
+        "enabled": true
+      }
+    }
+  }
+}
+
+================
+File: init.lua
+================
+-- Debug and Logging Settings
+vim.lsp.set_log_level("debug")
+vim.g.vimsyn_embed = 'l'
+vim.opt.verbose = 15
+vim.opt.verbosefile = "/tmp/nvim_verbose.log"
+
+-- Plugin Manager Settings
+vim.g.lazy_show_debug = 1
+
+-- Python Host Settings 
+vim.g.python3_host_prog = '~/.venv_nvim/bin/python3'
+
+-- Environment-specific Configuration
+if vim.g.vscode then
+  -- VSCode extensions
+  require("config.keymaps_vscode").setup()
+else
+  -- Neovim-specific configuration
+  require("config.lazy")
+end
+
+================
+File: lazy-lock.json
+================
+{
+  "CopilotChat.nvim": { "branch": "main", "commit": "804d9067d1eef0ee21dc39b5bbc86ab9f52287b7" },
+  "LazyVim": { "branch": "main", "commit": "45d94b3197eaf3f35754b8ecb7adebfcebe5160d" },
+  "SchemaStore.nvim": { "branch": "main", "commit": "97b08f928d355bd6d5dee595fdf667b5bfb6329f" },
+  "blink-cmp-copilot": { "branch": "main", "commit": "5d4ed42c5d7d144012792bb6cc4ac7899a108169" },
+  "blink.cmp": { "branch": "main", "commit": "b6f11a0aa33e601c469a126e3ed6e35208fe3ea3" },
+  "bufferline.nvim": { "branch": "main", "commit": "655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3" },
+  "catppuccin": { "branch": "main", "commit": "0b2437bcc12b4021614dc41fcea9d0f136d94063" },
+  "cmp-nvim-lsp": { "branch": "main", "commit": "99290b3ec1322070bcfb9e846450a46f6efa50f0" },
+  "conform.nvim": { "branch": "master", "commit": "59088eb6fea54e5a27e719df160329a0ead86b5c" },
+  "copilot.lua": { "branch": "master", "commit": "30321e33b03cb924fdcd6a806a0dc6fa0b0eafb9" },
+  "dial.nvim": { "branch": "master", "commit": "34bbd9c387c358190e61ce71017faad3dffa7a74" },
+  "flash.nvim": { "branch": "main", "commit": "f899265876ecdcf7352dbc9f0adf87068cedefbb" },
+  "flit.nvim": { "branch": "main", "commit": "1ef72de6a02458d31b10039372c8a15ab8989e0d" },
+  "friendly-snippets": { "branch": "main", "commit": "efff286dd74c22f731cdec26a70b46e5b203c619" },
+  "fzf-lua": { "branch": "main", "commit": "562593abac4f2796d0cf622876527cfb8d274639" },
+  "gitsigns.nvim": { "branch": "main", "commit": "2bc3b472bbc2484214549af4d9f38c127b886a55" },
+  "grug-far.nvim": { "branch": "main", "commit": "3a8690461afac34c0e5bacb0f7b4bc3066aab665" },
+  "gruvbox.nvim": { "branch": "main", "commit": "089b60e92aa0a1c6fa76ff527837cd35b6f5ac81" },
+  "harpoon": { "branch": "harpoon2", "commit": "ed1f853847ffd04b2b61c314865665e1dadf22c7" },
+  "hawtkeys.nvim": { "branch": "main", "commit": "261cc311d4abdc88decceca6dc1013faa14c56ea" },
+  "lazy.nvim": { "branch": "main", "commit": "7e6c863bc7563efbdd757a310d17ebc95166cef3" },
+  "lazydev.nvim": { "branch": "main", "commit": "a1b78b2ac6f978c72e76ea90ae92a94edf380cfc" },
+  "leap.nvim": { "branch": "main", "commit": "8b826a9fc766bffd14288aee01847cb0d6c6c383" },
+  "lspsaga.nvim": { "branch": "main", "commit": "da8a66c53241876bba140980469876db3a183604" },
+  "lualine.nvim": { "branch": "master", "commit": "f4f791f67e70d378a754d02da068231d2352e5bc" },
+  "mason-lspconfig.nvim": { "branch": "main", "commit": "805c31ec6bfb557975143712ecff6956d3227141" },
+  "mason.nvim": { "branch": "main", "commit": "e2f7f9044ec30067bc11800a9e266664b88cda22" },
+  "mini.ai": { "branch": "main", "commit": "6e01c0e5a15554852546fac9853960780ac52ed4" },
+  "mini.animate": { "branch": "main", "commit": "05570aaf8ad64fc1aa39ea0d52597da0da19881b" },
+  "mini.hipatterns": { "branch": "main", "commit": "fbf1e2195fdd65cf1bc970316c28098257728868" },
+  "mini.icons": { "branch": "main", "commit": "ec61af6e606fc89ee3b1d8f2f20166a3ca917a36" },
+  "mini.pairs": { "branch": "main", "commit": "1a3e73649c0eaef2f6c48ce1e761c6f0a7c11918" },
+  "mini.surround": { "branch": "main", "commit": "f90069c7441a5fb04c3de42eacf93e16b64dd3eb" },
+  "neo-tree.nvim": { "branch": "v3.x", "commit": "5d172e8315444dbc32867d1c7b04d8e7e68ec4e1" },
+  "noice.nvim": { "branch": "main", "commit": "0427460c2d7f673ad60eb02b35f5e9926cf67c59" },
+  "nui.nvim": { "branch": "main", "commit": "53e907ffe5eedebdca1cd503b00aa8692068ca46" },
+  "nvim-dap": { "branch": "master", "commit": "52302f02fea3a490e55475de52fa4deb8af2eb11" },
+  "nvim-dap-python": { "branch": "master", "commit": "34282820bb713b9a5fdb120ae8dd85c2b3f49b51" },
+  "nvim-lint": { "branch": "master", "commit": "6e9dd545a1af204c4022a8fcd99727ea41ffdcc8" },
+  "nvim-lspconfig": { "branch": "master", "commit": "6c17f8656f667727b27f5f598463afedb7791b18" },
+  "nvim-treesitter": { "branch": "master", "commit": "e411cf2c8adea87acda6c3d634a375addbfff88e" },
+  "nvim-treesitter-textobjects": { "branch": "master", "commit": "ad8f0a472148c3e0ae9851e26a722ee4e29b1595" },
+  "nvim-ts-autotag": { "branch": "main", "commit": "1cca23c9da708047922d3895a71032bc0449c52d" },
+  "nvim-web-devicons": { "branch": "master", "commit": "1020869742ecb191f260818234517f4a1515cfe8" },
+  "obsidian.nvim": { "branch": "main", "commit": "ae1f76a75c7ce36866e1d9342a8f6f5b9c2caf9b" },
+  "persistence.nvim": { "branch": "main", "commit": "f6aad7dde7fcf54148ccfc5f622c6d5badd0cc3d" },
+  "plenary.nvim": { "branch": "master", "commit": "857c5ac632080dba10aae49dba902ce3abf91b35" },
+  "snacks.nvim": { "branch": "main", "commit": "1491b543ef1d8a0eb29a6ebc35db4fb808dcb47f" },
+  "telescope-file-browser.nvim": { "branch": "master", "commit": "626998e5c1b71c130d8bc6cf7abb6709b98287bb" },
+  "telescope-ui-select.nvim": { "branch": "master", "commit": "6e51d7da30bd139a6950adf2a47fda6df9fa06d2" },
+  "telescope.nvim": { "branch": "master", "commit": "d90956833d7c27e73c621a61f20b29fdb7122709" },
+  "todo-comments.nvim": { "branch": "main", "commit": "304a8d204ee787d2544d8bc23cd38d2f929e7cc5" },
+  "tokyonight.nvim": { "branch": "main", "commit": "84ea0b5f4651afdf50ececaf6f110fe9d9dc9458" },
+  "trouble.nvim": { "branch": "main", "commit": "85bedb7eb7fa331a2ccbecb9202d8abba64d37b3" },
+  "ts-comments.nvim": { "branch": "main", "commit": "872dcfa0418f4a33b7437fb4d9f4e89f2f000d74" },
+  "venv-selector.nvim": { "branch": "regexp", "commit": "e82594274bf7b54387f9a2abe65f74909ac66e97" },
+  "vim-repeat": { "branch": "master", "commit": "65846025c15494983dafe5e3b46c8f88ab2e9635" },
+  "which-key.nvim": { "branch": "main", "commit": "0e76a87ac51772569aec678dc74baa8e2a86100c" },
+  "yanky.nvim": { "branch": "main", "commit": "d2696b30e389dced94d5acab728f524a25f308d2" }
+}
+
+================
+File: lazyvim.json
+================
+{
+  "extras": [
+    "lazyvim.plugins.extras.ai.copilot",
+    "lazyvim.plugins.extras.ai.copilot-chat",
+    "lazyvim.plugins.extras.coding.mini-surround",
+    "lazyvim.plugins.extras.coding.yanky",
+    "lazyvim.plugins.extras.editor.dial",
+    "lazyvim.plugins.extras.editor.fzf",
+    "lazyvim.plugins.extras.editor.harpoon2",
+    "lazyvim.plugins.extras.editor.leap",
+    "lazyvim.plugins.extras.formatting.black",
+    "lazyvim.plugins.extras.lang.docker",
+    "lazyvim.plugins.extras.lang.git",
+    "lazyvim.plugins.extras.lang.json",
+    "lazyvim.plugins.extras.lang.python",
+    "lazyvim.plugins.extras.lang.toml",
+    "lazyvim.plugins.extras.ui.mini-animate",
+    "lazyvim.plugins.extras.util.gitui",
+    "lazyvim.plugins.extras.util.mini-hipatterns",
+    "lazyvim.plugins.extras.vscode"
+  ],
+  "install_version": 7,
+  "news": {
+    "NEWS.md": "10960"
+  },
+  "version": 8
+}
+
+================
+File: LICENSE
+================
+Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+================
+File: README.md
+================
+# 💤 LazyVim
+
+A starter template for [LazyVim](https://github.com/LazyVim/LazyVim).
+Refer to the [documentation](https://lazyvim.github.io/installation) to get started.
+
+================
+File: stylua.toml
+================
+indent_type = "Spaces"
+indent_width = 2
+column_width = 120
+
+
+
+================================================================
+End of Codebase
+================================================================

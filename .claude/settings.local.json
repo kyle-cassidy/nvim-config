@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(nvim:*)",
+      "WebFetch(domain:www.lazyvim.org)",
+      "Bash(grep:*)"
+    ],
+    "deny": [],
+    "additionalDirectories": [
+      "/Users/kielay/.local"
+    ]
+  }
+}
