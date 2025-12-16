@@ -5,7 +5,8 @@
       "WebFetch(domain:github.com)",
       "Bash(nvim:*)",
       "WebFetch(domain:www.lazyvim.org)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(touch:*)"
     ],
     "deny": [],
     "additionalDirectories": [
