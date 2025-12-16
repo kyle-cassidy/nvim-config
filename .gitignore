@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Backup files
+*.bak
+
+# Plugin state (optional - uncomment if you don't want to track)
+# lazy-lock.json
