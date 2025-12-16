@@ -6,8 +6,19 @@ local keymap = vim.keymap.set
 
 vim.g.mapleader = " "
 
+-- Disable LazyVim's default <leader><leader> (space-space) mapping
+-- vim.api.nvim_create_autocmd("User", {
+--   pattern = "VeryLazy",
+--   callback = function()
+--     pcall(vim.keymap.del, "n", "<leader><leader>")
+--   end,
+-- })
+
 vim.api.nvim_set_keymap("n", "<leader>;;", "/", { noremap = true })
 vim.api.nvim_set_keymap("i", "jk", "<Esc>", { noremap = true })
+
+-- Quick access to Lazy plugin manager from fyler
+vim.api.nvim_set_keymap("n", "<leader>lf", "<cmd>Lazy<cr><cmd>Fyler<cr>", { noremap = true, desc = "Lazy then Fyler" })
 
 -- vim.opt.number = true
 -- vim.opt.relativenumber = true
@@ -52,11 +63,17 @@ keymap("n", "<leader>q", function()
   local filetype = vim.bo.filetype
   local bufname = vim.fn.bufname()
   -- Check if we're in a special buffer or Claude Code buffer
-  if buftype ~= "" or filetype == "alpha" or filetype == "dashboard" or filetype == "lazy" or string.match(bufname, "claude") then
+  if
+    buftype ~= ""
+    or filetype == "alpha"
+    or filetype == "dashboard"
+    or filetype == "lazy"
+    or string.match(bufname, "claude")
+  then
     -- Get list of normal buffers
     local buffers = vim.fn.getbufinfo({ buflisted = 1 })
     local current = vim.fn.bufnr()
-    
+
     -- Try to find a normal buffer to switch to
     for _, buf in ipairs(buffers) do
       if buf.bufnr ~= current and buf.name ~= "" and not string.match(buf.name, "claude") then
@@ -64,7 +81,7 @@ keymap("n", "<leader>q", function()
         return
       end
     end
-    
+
     -- If no other buffers, create a new one
     vim.cmd("enew")
   else
@@ -80,7 +97,7 @@ keymap("n", "<Esc><Esc>", function()
     -- Get list of normal buffers
     local buffers = vim.fn.getbufinfo({ buflisted = 1 })
     local current = vim.fn.bufnr()
-    
+
     -- Try to find a normal buffer to switch to
     for _, buf in ipairs(buffers) do
       if buf.bufnr ~= current and buf.name ~= "" and not string.match(buf.name, "claude") then
@@ -88,7 +105,7 @@ keymap("n", "<Esc><Esc>", function()
         return
       end
     end
-    
+
     -- If no other buffers, create a new one
     vim.cmd("enew")
   end
@@ -114,12 +131,12 @@ end, { desc = "Switch to previous buffer" })
 -- Map leader-backtick to escape Claude buffer or switch buffers
 keymap("n", "<leader>`", function()
   local bufname = vim.fn.bufname()
-  
+
   -- If in Claude buffer, try to find another buffer
   if string.match(bufname, "claude") or string.match(bufname, "Claude") then
     local buffers = vim.fn.getbufinfo({ buflisted = 1 })
     local current = vim.fn.bufnr()
-    
+
     -- Find first non-Claude buffer
     for _, buf in ipairs(buffers) do
       if buf.bufnr ~= current and not string.match(buf.name or "", "[Cc]laude") then
@@ -127,7 +144,7 @@ keymap("n", "<leader>`", function()
         return
       end
     end
-    
+
     -- No other buffers, create new
     vim.cmd("enew")
   else
@@ -142,3 +159,17 @@ keymap("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 keymap("n", "<C-j>", "<C-w>j", { desc = "Go to window below" })
 keymap("n", "<C-k>", "<C-w>k", { desc = "Go to window above" })
+
+-- macOS-style navigation in INSERT mode
+-- Option+Arrow for word navigation (terminal sends <M-b> and <M-f>)
+keymap("i", "<M-b>", "<C-o>b", { desc = "Move back one word" })
+keymap("i", "<M-f>", "<C-o>w", { desc = "Move forward one word" })
+-- Cmd+Arrow for line navigation (Ghostty sends <C-a> and <C-e>)
+keymap("i", "<C-a>", "<C-o>0", { desc = "Move to beginning of line" })
+keymap("i", "<C-e>", "<C-o>$", { desc = "Move to end of line" })
+
+-- macOS-style deletion in INSERT mode
+-- Option+Backspace for delete word backward
+keymap("i", "<M-BS>", "<C-w>", { desc = "Delete word backward" })
+-- Cmd+Backspace for delete to line start (Ghostty needs: keybind = cmd+backspace=text:\x15)
+keymap("i", "<C-u>", "<C-u>", { desc = "Delete to line start" })
