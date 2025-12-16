@@ -73,17 +73,11 @@ return {
     opts = {
       heading = {
         enabled = true,
-        sign = true,
+        sign = false,
         icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
-        -- Different background for each heading level
-        backgrounds = {
-          "RenderMarkdownH1Bg",
-          "RenderMarkdownH2Bg",
-          "RenderMarkdownH3Bg",
-          "RenderMarkdownH4Bg",
-          "RenderMarkdownH5Bg",
-          "RenderMarkdownH6Bg",
-        },
+        -- No full-width backgrounds - just highlight text
+        width = "block",
+        backgrounds = {},
       },
       code = {
         enabled = true,
@@ -129,7 +123,29 @@ return {
       height = 100,
     },
     keys = {
-      { "<leader>mp", "<cmd>Glow<cr>", desc = "Preview markdown (Glow)" },
+      { "<leader>mg", "<cmd>Glow<cr>", desc = "Preview markdown (Glow)" },
+    },
+  },
+
+  -- markdown-preview.nvim: live browser preview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = "markdown",
+    build = "cd app && npm install",
+    init = function()
+      vim.g.mkdp_filetypes = { "markdown" }
+      -- Open preview in new browser window
+      vim.g.mkdp_browser = ""
+      -- Auto-close browser when leaving buffer
+      vim.g.mkdp_auto_close = 1
+      -- Refresh on save or cursor hold
+      vim.g.mkdp_refresh_slow = 0
+      -- Use dark theme
+      vim.g.mkdp_theme = "dark"
+    end,
+    keys = {
+      { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Preview markdown (browser)" },
     },
   },
 

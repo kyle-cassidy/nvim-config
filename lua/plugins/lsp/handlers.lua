@@ -19,13 +19,28 @@ M.setup = function()
   end
 
   local config = {
-    -- Enable virtual text
-    virtual_text = true,
+    -- Virtual text: show only error code, not full message
+    virtual_text = {
+      prefix = "●",
+      spacing = 2,
+      -- Only show the source/code, not the verbose message
+      format = function(diagnostic)
+        if diagnostic.code then
+          return string.format("%s", diagnostic.code)
+        end
+        -- Truncate long messages
+        local msg = diagnostic.message
+        if #msg > 40 then
+          msg = msg:sub(1, 37) .. "..."
+        end
+        return msg
+      end,
+    },
     -- show signs
     signs = {
       active = signs,
     },
-    update_in_insert = true,
+    update_in_insert = false,
     underline = true,
     severity_sort = true,
     float = {

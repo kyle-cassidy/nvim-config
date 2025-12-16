@@ -75,12 +75,21 @@ At the start of a line:
 
 ## Preview
 
-- **`<leader>mp`** - Open Glow preview (terminal-rendered markdown)
-- **`<leader>mr`** - Toggle render-markdown (inline rendering)
+### Terminal Preview
+- **`<leader>mg`** - Open Glow preview (terminal-rendered, floating window)
+- **`<leader>mr`** - Toggle render-markdown (inline rendering in buffer)
+
+### Browser Preview (rich rendering with large headers)
+- **`<leader>mp`** - Open live browser preview (markdown-preview.nvim)
+  - Auto-refreshes as you edit
+  - Full CSS styling, large headers, syntax highlighting
+  - Dark theme by default
 
 Glow opens a floating window with rendered markdown. Press `q` to close.
 
 render-markdown shows inline rendering without leaving the buffer — headings get icons/backgrounds, checkboxes render, code blocks get borders.
+
+markdown-preview.nvim opens your default browser with a live-updating preview — this gives you the richest rendering with actual different-sized headers.
 
 ## LLM Iteration Workflow
 
@@ -145,7 +154,8 @@ When iterating with an LLM on architecture docs:
 | `z1-4` | n | Fold to level |
 | `z0` | n | Unfold all |
 | `zK` | n | Peek fold |
-| `<leader>mp` | n | Glow preview |
+| `<leader>mp` | n | Browser preview (live) |
+| `<leader>mg` | n | Glow preview (terminal) |
 | `<leader>mr` | n | Toggle render |
 | `<leader>mt` | n | Toggle table mode |
 | `<leader>mx` | n | Toggle checkbox |
@@ -161,9 +171,12 @@ When iterating with an LLM on architecture docs:
 
 yazi.nvim lets you open yazi directly from nvim. Combined with your existing glow preview in yazi, this creates a smooth workflow for browsing and previewing markdown files.
 
-### Keybindings
+### Keybindings (from nvim)
 - **`<leader>y`** or **`<leader>fy`** - Open yazi at current file's directory
 - **`<leader>fY`** - Open yazi at working directory
+
+### Keybindings (in yazi)
+- **`P`** - Open markdown in browser (grip - GitHub-flavored preview)
 
 ### Workflow: Browsing Markdown Files
 1. Press `<leader>y` to open yazi
