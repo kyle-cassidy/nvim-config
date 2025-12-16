@@ -1,9 +1,15 @@
 local M = {}
 local keymap = vim.keymap.set
 
-local cmp_nvim_lsp = require("cmp_nvim_lsp")
-
-M.capabilities = cmp_nvim_lsp.default_capabilities()
+-- Use Blink's capabilities if available, otherwise use default
+M.capabilities = function()
+  local has_blink, blink = pcall(require, "blink.cmp")
+  if has_blink then
+    return blink.get_lsp_capabilities()
+  else
+    return vim.lsp.protocol.make_client_capabilities()
+  end
+end
 
 M.setup = function()
   local signs = { Error = "", Warn = "", Hint = "", Info = "" }
