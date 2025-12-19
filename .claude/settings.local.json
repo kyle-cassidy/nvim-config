@@ -6,7 +6,12 @@
       "Bash(nvim:*)",
       "WebFetch(domain:www.lazyvim.org)",
       "Bash(grep:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(command -v:*)",
+      "Bash(cat:*)",
+      "Bash(/Users/kielay/.claude/local/claude:*)",
+      "mcp__brave-search__brave_web_search",
+      "mcp__fetch__fetch"
     ],
     "deny": [],
     "additionalDirectories": [
